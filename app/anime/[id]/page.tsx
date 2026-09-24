@@ -1,3 +1,5 @@
+import TrailerPlayer from "./TrailerPlayer";
+
 type Anime = {
   id: number;
   title: {
@@ -14,6 +16,10 @@ type Anime = {
   status: string | null;
   seasonYear: number | null;
   genres: string[];
+  trailer: {
+    id: string | null;
+    site: string | null;
+  } | null;
 };
 
 async function getAnime(id: number): Promise<Anime | null> {
@@ -35,6 +41,10 @@ async function getAnime(id: number): Promise<Anime | null> {
         status
         seasonYear
         genres
+        trailer {
+          id
+          site
+        }
       }
     }
   `;
@@ -49,7 +59,9 @@ async function getAnime(id: number): Promise<Anime | null> {
         query,
         variables: { id }
       }),
-      next: { revalidate: 21600 }
+      next: {
+        revalidate: 21600
+      }
     });
 
     if (!response.ok) return null;
@@ -72,11 +84,11 @@ export default async function AnimeDetailPage({
   if (!anime) {
     return (
       <main className="min-h-screen bg-zinc-950 px-5 py-10 text-white">
-        <a href="/search" className="text-red-400">
-          Back to Browse Anime
+        <a href="/search" className="text-red-300/80">
+          ← Back to Browse Anime
         </a>
 
-        <h1 className="mt-8 text-3xl font-black">
+        <h1 className="mt-8 text-3xl font-black text-white/95">
           Anime not found
         </h1>
       </main>
@@ -84,17 +96,23 @@ export default async function AnimeDetailPage({
   }
 
   const title = anime.title.english || anime.title.romaji;
+  const hasYouTubeTrailer =
+    anime.trailer?.id &&
+    anime.trailer?.site?.toLowerCase() === "youtube";
 
   return (
     <main className="min-h-screen bg-zinc-950 text-white">
-      <header className="flex items-center justify-between border-b border-zinc-800 px-5 py-4">
-        <a href="/" className="text-2xl font-black tracking-wider text-red-500">
+      <header className="flex items-center justify-between border-b border-white/10 bg-zinc-950/85 px-5 py-4 backdrop-blur">
+        <a
+          href="/"
+          className="text-2xl font-black tracking-wider text-red-500"
+        >
           ANIPLAY
         </a>
 
         <a
           href="/search"
-          className="rounded-lg border border-zinc-700 px-3 py-2 text-sm font-semibold"
+          className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm font-semibold text-white/70 transition hover:border-red-400/60 hover:text-white"
         >
           Browse Anime
         </a>
@@ -104,53 +122,60 @@ export default async function AnimeDetailPage({
         <img
           src={anime.coverImage.large}
           alt={title}
-          className="h-80 w-56 rounded-xl border border-zinc-700 object-cover"
+          className="h-80 w-56 rounded-xl border border-white/10 object-cover shadow-xl shadow-black/30"
         />
 
         <div className="max-w-3xl">
-          <p className="text-sm font-bold tracking-widest text-red-400">
+          <p className="text-sm font-bold tracking-widest text-red-300/75">
             ANIME DETAILS
           </p>
 
-          <h1 className="mt-2 text-4xl font-black">
+          <h1 className="mt-2 text-4xl font-black text-white/95">
             {title}
           </h1>
 
           {anime.title.native && (
-            <p className="mt-2 text-zinc-400">
+            <p className="mt-2 text-white/45">
               {anime.title.native}
             </p>
           )}
 
           <div className="mt-5 flex flex-wrap gap-2">
-            <span className="rounded-full bg-yellow-500/15 px-3 py-1 text-sm font-bold text-yellow-300">
-              Score: {anime.averageScore ?? "N/A"}
+            <span className="rounded-full bg-yellow-400/15 px-3 py-1 text-sm font-bold text-yellow-200/90">
+              ★ {anime.averageScore ?? "N/A"}
             </span>
 
-            <span className="rounded-full bg-zinc-800 px-3 py-1 text-sm">
+            <span className="rounded-full bg-white/5 px-3 py-1 text-sm text-white/60">
               Episodes: {anime.episodes ?? "?"}
             </span>
 
-            <span className="rounded-full bg-zinc-800 px-3 py-1 text-sm">
+            <span className="rounded-full bg-white/5 px-3 py-1 text-sm text-white/60">
               {anime.status?.replaceAll("_", " ") ?? "Unknown"}
             </span>
 
             {anime.seasonYear && (
-              <span className="rounded-full bg-zinc-800 px-3 py-1 text-sm">
+              <span className="rounded-full bg-white/5 px-3 py-1 text-sm text-white/60">
                 {anime.seasonYear}
               </span>
             )}
           </div>
 
-          <h2 className="mt-8 text-2xl font-bold">
+          {hasYouTubeTrailer && (
+            <TrailerPlayer
+              trailerId={anime.trailer!.id!}
+              site={anime.trailer!.site!}
+            />
+          )}
+
+          <h2 className="mt-8 text-2xl font-bold text-white/90">
             About
           </h2>
 
-          <p className="mt-3 whitespace-pre-line leading-7 text-zinc-300">
+          <p className="mt-3 whitespace-pre-line leading-7 text-white/55">
             {anime.description || "No description available."}
           </p>
 
-          <h2 className="mt-8 text-2xl font-bold">
+          <h2 className="mt-8 text-2xl font-bold text-white/90">
             Genres
           </h2>
 
@@ -158,7 +183,7 @@ export default async function AnimeDetailPage({
             {anime.genres.map((genre) => (
               <span
                 key={genre}
-                className="rounded-full border border-red-900 bg-red-950/40 px-3 py-1 text-sm text-red-200"
+                className="rounded-full border border-red-500/20 bg-red-950/25 px-3 py-1 text-sm text-red-100/75"
               >
                 {genre}
               </span>
