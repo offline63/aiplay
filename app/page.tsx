@@ -1,3 +1,4 @@
+import TelegramAdButton from "./components/TelegramAdButton";
 type Anime = {
   id: number;
   title: {
@@ -197,8 +198,11 @@ export default async function HomePage() {
             href="/search"
             className="mt-8 inline-flex rounded-xl bg-red-500 px-5 py-3 font-bold text-white shadow-lg shadow-red-950/50 transition hover:bg-red-400"
           >
-            Browse Anime →
+           
+          Browse Anime →
           </a>
+
+          <TelegramAdButton />
         </div>
       </section>
 
