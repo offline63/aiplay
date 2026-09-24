@@ -1,3 +1,4 @@
+import Script from "next/script";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -23,7 +24,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
-    </html>
+<body className="min-h-full flex flex-col">
+  {children}
+
+  <Script
+    src="https://libtl.com/sdk.js"
+    strategy="afterInteractive"
+    data-zone="11876145"
+    data-sdk="show_11876145"
+  />
+</body>    </html>
   );
 }
+
